@@ -28,10 +28,14 @@ end
 
 print "\nPlease enter an end word: "
 end_word = gets.chomp
-ladder = lexicon.get_word_ladder(word, end_word)
-
+ladder, flag = lexicon.get_word_ladder(word, end_word)
+word = ladder[0]
 puts "\nHere is the word ladder for #{word} -> #{end_word}:"
-print "#{word} -> "
+if not flag
+  puts "There is no connection for #{word} -> #{end_word}"
+  exit
+end
+#print "#{word} -> "
 ladder.each do |rung|
   print "#{rung} -> "
 end
