@@ -48,6 +48,7 @@ class Lexicon
     file.close
   end
 
+  # List all words that are prefixed
   def self.scan(prefix)
     if @@trie == nil
       self.read

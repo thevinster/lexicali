@@ -2,6 +2,7 @@
 
 require './lexicon'
 require 'set'
+require 'pry'
 
 class SpecialLexicon < Lexicon
   
@@ -9,7 +10,6 @@ class SpecialLexicon < Lexicon
   def get_anagrams(word)
     ans = Set.new
     word.chars.permutation.map(&:join).each do |permuted_word|
-      # Check if permuted_word is valid
       ans << permuted_word if Lexicon.is_word?(permuted_word)
     end
     return ans.to_a
@@ -24,8 +24,6 @@ class SpecialLexicon < Lexicon
 
   # Generates the shortest possible word ladder connecting the two words
   def get_word_ladder(start_word, end_word)
-    ans = []
-    flag = false
     unless Lexicon.is_word?(end_word)
       puts "end_world is not a valid word"
       exit
@@ -36,35 +34,42 @@ class SpecialLexicon < Lexicon
       exit
     end
 
-    unless Lexicon.is_word?(start_word)
-      return ans, flag
-    end
+    bfsHash = {}
+    visited = {}
+    ans = []
+    queue = Queue.new
 
-    if start_word == end_word
-      flag = true
-      return ans, flag
-    end
+    queue << start_word.dup
+    start_word_cpy = start_word.dup
+    while !queue.empty?
+      word = queue.pop
+      start_word = word.dup
+      bfsHash[word] = Set.new
+      (0..start_word.length-1).each do |i|
+        ("a".."z").each do |letter|
+          start_word[i] = letter
+          if Lexicon.is_word?(start_word) and start_word != word
+            bfsHash[word] << start_word.dup if visited[start_word] == nil
+            queue << start_word.dup if visited[start_word] == nil
+            visited[start_word] = word if visited[start_word] == nil
+          end
 
-    ans << start_word.dup
-    
-    (0..start_word.length-1).each do |i|
-      if start_word[i] != end_word[i]
-        #ans << start_word.dup
-        temp = start_word[i]
-        start_word[i] = end_word[i]
-        #puts temp, start_word
-        ladder, _ = get_word_ladder(start_word, end_word)
-        ladder.each {|v| ans.push v}
-        if start_word == end_word
-          flag = true
-          return ans, flag
+          break if start_word == end_word
+
         end
-        #ans.pop
-        start_word[i] = temp
-      end      
+        break if start_word == end_word
+        start_word = word.dup
+      end
+      break if start_word == end_word
     end
-    return ans, flag
-  end
 
+    while visited[start_word] != start_word_cpy
+      ans << visited[start_word].dup
+      start_word = visited[start_word].dup
+    end
+    
+    start_word = start_word_cpy
+    ans.reverse
+  end
 end
 
